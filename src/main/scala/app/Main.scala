@@ -11,10 +11,11 @@ import scalaz.zio.interop.catz._
 import scalaz.zio.scheduler.Scheduler
 import scalaz.zio.{App, TaskR, ZIO}
 import cats.syntax.all._
+import effects.{UUID, ZUUID}
 
 object Main extends App {
 
-  type AppEnvironment = Clock
+  type AppEnvironment = Clock with UUID
 
   type AppTask[A] = TaskR[AppEnvironment, A]
 
@@ -49,9 +50,12 @@ object Main extends App {
             .drain
         }
         .provideSome[Environment] { base =>
-          new Clock {
+          new Clock with UUID {
             val clock: Clock.Service[Any] = base.clock
             val scheduler: Scheduler.Service[Any] = base.scheduler
+
+            def UUIDEffect: UUID.Effect = ZUUID
+
           }
         }
     } yield server
