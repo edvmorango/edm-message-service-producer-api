@@ -1,6 +1,9 @@
 package config
 
-final case class Config(app: AppConfig, aws: AWSConfig, events: EventConfig)
+final case class Config(app: AppConfig,
+                        aws: AWSConfig,
+                        events: EventConfig,
+                        userConfig: UserConfig)
 
 final case class AppConfig(host: String, context: String, port: Int)
 
@@ -14,6 +17,8 @@ final case class SnsConfig(prefix: String,
                            secretKey: String)
 
 final case class EventConfig(userMessageEvent: String)
+
+final case class UserConfig(baseUri: String)
 
 object ConfigLoader {
   import java.nio.file.Path

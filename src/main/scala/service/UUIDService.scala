@@ -4,12 +4,6 @@ import io.chrisdavenport.fuuid.FUUID
 import scalaz.zio.{Task, TaskR}
 import scalaz.zio.interop.catz._
 
-trait UUID {
-
-  def uuidService: UUID.Service
-
-}
-
 object UUID {
 
   trait Service {
