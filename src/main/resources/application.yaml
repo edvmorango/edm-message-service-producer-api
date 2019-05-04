@@ -5,14 +5,13 @@ app:
 
 aws:
   sns:
+    prefix: dev
     region: us-west-1
     host: localhost
     port: 9911
-    topic-name: 2
     access-key: access-key
     secret-key: secret-key
 
 
 events:
-  user:
-    message: user_message_topic
+  user-message-event: user_message_topic
