@@ -38,11 +38,13 @@ lazy val http4sVersion = "0.20.0-RC1"
 lazy val fs2Version = "1.0.4"
 lazy val circeVersion = "0.11.1"
 lazy val pureConfigVersion =  "0.10.2"
-
+lazy val sttpVersion = "1.5.15"
 
 lazy val fuuidVersion = "0.2.0-M8"
 lazy val scalaTestVersion = "3.0.0"
 lazy val alpakkaVersion = "1.0.0"
+
+
 // Dependencies
 
 libraryDependencies ++=  Seq(
@@ -80,8 +82,16 @@ libraryDependencies ++= Seq(
 ).map(_ % pureConfigVersion)
 
 
+libraryDependencies ++= Seq(
+  "com.softwaremill.sttp" %% "core",
+  "com.softwaremill.sttp" %% "circe",
+  "com.softwaremill.sttp" %% "async-http-client-backend-zio"
+).map(_ % sttpVersion)
+
+
 libraryDependencies += "io.chrisdavenport" %% "fuuid" % fuuidVersion 
 
 libraryDependencies += "com.lightbend.akka" %% "akka-stream-alpakka-sns" % alpakkaVersion
 
 libraryDependencies += "org.scalatest" %% "scalatest" % scalaTestVersion
+
