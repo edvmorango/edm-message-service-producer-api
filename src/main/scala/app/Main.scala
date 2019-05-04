@@ -20,7 +20,6 @@ object Main extends App {
   def createRoutes(basePath: String) = {
     import org.http4s.implicits._
 
-    println(basePath)
     val healthEndpoints =
       new HealthEndpoint[AppEnvironment]("health").endpoints
 

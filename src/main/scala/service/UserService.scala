@@ -1,20 +1,14 @@
 package service
 
-import config.UserConfig
 import domain.User
 import scalaz.zio.ZIO
 
-object User {
+trait UserService[R] {
 
-  trait Service[R] {
-
-    def findByEmail(email: String): ZIO[R, Throwable, Option[User]]
-
-  }
+  def findByEmail(email: String): ZIO[R, Throwable, Option[User]]
 
 }
-
-class UserService(userServiceConfig: UserConfig) extends User.Service[Any] {
+class UserServiceImpl extends UserService[Any] {
 
   def findByEmail(email: String): ZIO[Any, Throwable, Option[User]] = ???
 

@@ -15,3 +15,6 @@ aws:
 
 events:
   user-message-event: user_message_topic
+
+user-service:
+  base-uri: "http://localhost:8080/user/v1"

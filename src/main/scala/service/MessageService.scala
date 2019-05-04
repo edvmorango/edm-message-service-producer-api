@@ -1,19 +1,15 @@
 package service
 
-import domain.{Message, User}
+import domain.Message
 import scalaz.zio.ZIO
 
-object Message {
+trait MessageService[R] {
 
-  trait Service[R] {
-
-    def publishMessage(message: Message): ZIO[R, Any, Any]
-
-  }
+  def publishMessage(message: Message): ZIO[R, Any, Any]
 
 }
 
-object MessageService extends Message.Service[Any] {
+object MessageServiceImpl extends MessageService[Any] {
 
   def publishMessage(message: Message): ZIO[Any, Any, Any] = ???
 
