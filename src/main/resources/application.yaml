@@ -1,0 +1,18 @@
+app:
+  host: localhost
+  context: /message/v1
+  port: 8081
+
+aws:
+  sns:
+    region: us-west-1
+    host: localhost
+    port: 9911
+    topic-name: 2
+    access-key: access-key
+    secret-key: secret-key
+
+
+events:
+  user:
+    message: user_message_topic
