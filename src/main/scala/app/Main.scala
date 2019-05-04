@@ -2,7 +2,7 @@ package app
 
 import cats.effect.ExitCode
 import config.ConfigLoader
-import endpoint.HealthEndpoint
+import endpoint.{HealthEndpoint, MessageEndpoint}
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import scalaz.zio.clock.Clock
@@ -10,6 +10,7 @@ import scalaz.zio.console._
 import scalaz.zio.interop.catz._
 import scalaz.zio.scheduler.Scheduler
 import scalaz.zio.{App, TaskR, ZIO}
+import cats.syntax.all._
 
 object Main extends App {
 
@@ -23,7 +24,10 @@ object Main extends App {
     val healthEndpoints =
       new HealthEndpoint[AppEnvironment]("health").endpoints
 
-    val endpoints = healthEndpoints
+    val messageEndpoints =
+      new MessageEndpoint[AppEnvironment]("message").endpoints
+
+    val endpoints = healthEndpoints <+> messageEndpoints
 
     Router[AppTask](basePath -> endpoints).orNotFound
 
