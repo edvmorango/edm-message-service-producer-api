@@ -6,7 +6,7 @@ import scalaz.zio.ZIO
 
 trait Sttp {
 
-  val SttpEffect: Sttp.Effect
+  val HttpEffect: Sttp.Effect
 
 }
 
@@ -20,7 +20,7 @@ object Sttp {
 
 }
 
-object ZSttp extends Sttp.Effect {
+object SttpClient extends Sttp.Effect {
 
   implicit def sttpBackend: SttpBackend[ZIO[Any, Throwable, ?], Nothing] =
     AsyncHttpClientZioBackend()

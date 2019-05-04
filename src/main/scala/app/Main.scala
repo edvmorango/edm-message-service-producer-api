@@ -1,7 +1,9 @@
 package app
 
 import cats.effect.ExitCode
+import cats.syntax.all._
 import config.ConfigLoader
+import effects._
 import endpoint.{HealthEndpoint, MessageEndpoint}
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -10,12 +12,10 @@ import scalaz.zio.console._
 import scalaz.zio.interop.catz._
 import scalaz.zio.scheduler.Scheduler
 import scalaz.zio.{App, TaskR, ZIO}
-import cats.syntax.all._
-import effects.{UUID, ZUUID}
 
 object Main extends App {
 
-  type AppEnvironment = Clock with UUID
+  type AppEnvironment = Clock with UUID with UserClient
 
   type AppTask[A] = TaskR[AppEnvironment, A]
 
@@ -50,11 +50,14 @@ object Main extends App {
             .drain
         }
         .provideSome[Environment] { base =>
-          new Clock with UUID {
+          new Clock with UUID with UserClient {
             val clock: Clock.Service[Any] = base.clock
             val scheduler: Scheduler.Service[Any] = base.scheduler
 
             def UUIDEffect: UUID.Effect = ZUUID
+
+            def UserClientEffect: UserClient.Effect[Sttp] =
+              new UserClientSttp(cfg.userService)
 
           }
         }

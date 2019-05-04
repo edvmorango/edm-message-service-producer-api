@@ -6,7 +6,7 @@ import scalaz.zio.ZIO
 
 trait UserClient {
 
-  def UserClientEffect: UserClient.Effect[Any]
+  def UserClientEffect: UserClient.Effect[Sttp]
 
 }
 
@@ -40,7 +40,7 @@ final class UserClientSttp(userServiceConfig: UserServiceConfig)
 
   def findByEmail(email: String): ZIO[Sttp, Throwable, Option[User]] =
     ZIO.accessM[Sttp] { eff =>
-      import eff.SttpEffect._
+      import eff.HttpEffect._
 
       for {
         response <- sttp

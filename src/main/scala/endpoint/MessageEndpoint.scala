@@ -1,7 +1,7 @@
 package endpoint
 
 import domain.SendMessage
-import effects.UUID
+import effects.{UUID, UserClient}
 import json.JsonSupportEndpoint
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
@@ -9,7 +9,7 @@ import scalaz.zio.interop.catz._
 import scalaz.zio.{TaskR, ZIO}
 import io.circe.generic.auto._
 
-final class MessageEndpoint[R <: UUID](rootUri: String)
+final class MessageEndpoint[R <: UUID with UserClient](rootUri: String)
     extends JsonSupportEndpoint[R] {
 
   type MessageTask[A] = TaskR[R, A]
