@@ -7,8 +7,8 @@ final case class User(uuid: String,
                       email: String,
                       birthDate: LocalDate)
 
-final case class Message(uuid: String,
-                         message: String,
-                         sender: User,
-                         peer: User,
-                         sendDate: LocalDateTime)
+final case class MessageSent(uuid: String,
+                             message: String,
+                             sender: User,
+                             peer: User,
+                             sendDate: LocalDateTime)

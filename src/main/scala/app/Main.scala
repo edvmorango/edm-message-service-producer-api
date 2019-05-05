@@ -4,6 +4,8 @@ import cats.effect.ExitCode
 import cats.syntax.all._
 import config.ConfigLoader
 import effects._
+import effects.external.{UserClient, UserClientSTTP}
+import effects.publisher.{MessagePublisher, MessagePublisherSNS, SNSClient}
 import endpoint.{HealthEndpoint, MessageEndpoint}
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -15,7 +17,7 @@ import scalaz.zio.{App, TaskR, ZIO}
 
 object Main extends App {
 
-  type AppEnvironment = Clock with UUID with UserClient
+  type AppEnvironment = Clock with UUID with UserClient with MessagePublisher
 
   type AppTask[A] = TaskR[AppEnvironment, A]
 
@@ -50,7 +52,7 @@ object Main extends App {
             .drain
         }
         .provideSome[Environment] { base =>
-          new Clock with UUID with UserClient {
+          new Clock with UUID with UserClient with MessagePublisher {
 
             val clock: Clock.Service[Any] = base.clock
             val scheduler: Scheduler.Service[Any] = base.scheduler
@@ -60,6 +62,9 @@ object Main extends App {
 
             def UUIDEffect: UUID.Effect = ZUUID
 
+            def MessagePub: MessagePublisher.Effect =
+              new MessagePublisherSNS(cfg.events.userMessageEvent,
+                                      SNSClient.instantiate(cfg.aws.sns))
           }
         }
     } yield server

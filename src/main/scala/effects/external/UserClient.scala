@@ -1,4 +1,4 @@
-package effects
+package effects.external
 
 import com.softwaremill.sttp.asynchttpclient.zio.AsyncHttpClientZioBackend
 import config.UserServiceConfig

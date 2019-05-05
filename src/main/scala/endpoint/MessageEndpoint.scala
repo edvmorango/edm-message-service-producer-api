@@ -1,7 +1,9 @@
 package endpoint
 
 import domain.SendMessage
-import effects.{UUID, UserClient}
+import effects.UUID
+import effects.external.UserClient
+import effects.publisher.MessagePublisher
 import json.JsonSupportEndpoint
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
@@ -10,7 +12,8 @@ import scalaz.zio.{TaskR, ZIO}
 import io.circe.generic.auto._
 import service.MessageServiceImpl
 
-final class MessageEndpoint[R <: UUID with UserClient](rootUri: String)
+final class MessageEndpoint[R <: UUID with UserClient with MessagePublisher](
+    rootUri: String)
     extends JsonSupportEndpoint[R] {
 
   type MessageTask[A] = TaskR[R, A]
@@ -27,7 +30,8 @@ final class MessageEndpoint[R <: UUID with UserClient](rootUri: String)
         val sendMessage: ZIO[R, Throwable, SendMessage] =
           req.as[SendMessage]
 
-        Created(sendMessage >>= publishMessage)
+        val xz = sendMessage >>= publishMessage
+        Created(xz)
 
     }
 }
