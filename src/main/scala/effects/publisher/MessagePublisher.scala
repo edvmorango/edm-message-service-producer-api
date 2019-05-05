@@ -32,12 +32,12 @@ class MessagePublisherSNS(topic: String, implicit val snsClient: SnsAsyncClient)
 
     for {
       _ <- ZIO
-        .fromFuture(
-          _ =>
-            Source
-              .single(message.asJson.toString())
-              .via(SnsPublisher.flow(topic))
-              .runWith(Sink.foreach(println(_))))
+        .fromFuture { implicit ec =>
+          Source
+            .single(message.asJson.toString())
+            .via(SnsPublisher.flow(topic))
+            .runWith(Sink.ignore)
+        }
     } yield ()
 
   }
