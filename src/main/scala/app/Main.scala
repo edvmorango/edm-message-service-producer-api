@@ -51,13 +51,14 @@ object Main extends App {
         }
         .provideSome[Environment] { base =>
           new Clock with UUID with UserClient {
+
             val clock: Clock.Service[Any] = base.clock
             val scheduler: Scheduler.Service[Any] = base.scheduler
 
-            def UUIDEffect: UUID.Effect = ZUUID
+            val userClient: UserClient.Service =
+              new UserClientSTTP(cfg.userService)
 
-            def UserClientEffect: UserClient.Effect[Sttp] =
-              new UserClientSttp(cfg.userService)
+            def UUIDEffect: UUID.Effect = ZUUID
 
           }
         }

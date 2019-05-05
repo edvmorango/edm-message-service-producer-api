@@ -8,6 +8,7 @@ import org.http4s.dsl.Http4sDsl
 import scalaz.zio.interop.catz._
 import scalaz.zio.{TaskR, ZIO}
 import io.circe.generic.auto._
+import service.MessageServiceImpl
 
 final class MessageEndpoint[R <: UUID with UserClient](rootUri: String)
     extends JsonSupportEndpoint[R] {
@@ -17,6 +18,7 @@ final class MessageEndpoint[R <: UUID with UserClient](rootUri: String)
   val dsl: Http4sDsl[MessageTask] = Http4sDsl[MessageTask]
 
   import dsl._
+  import MessageServiceImpl._
 
   def endpoints: HttpRoutes[MessageTask] =
     HttpRoutes.of[MessageTask] {
@@ -25,7 +27,7 @@ final class MessageEndpoint[R <: UUID with UserClient](rootUri: String)
         val sendMessage: ZIO[R, Throwable, SendMessage] =
           req.as[SendMessage]
 
-        Created(sendMessage)
+        Created(sendMessage >>= publishMessage)
 
     }
 }
