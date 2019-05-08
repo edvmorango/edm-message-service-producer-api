@@ -2,7 +2,7 @@ package service
 
 import java.time.LocalDateTime
 
-import domain.{MessageSent, SendMessage}
+import domain.{MessageSent, SendMessage, User}
 import scalaz.zio.ZIO
 import service.Environment.MessageServiceEnvironment
 
@@ -13,32 +13,49 @@ trait MessageService[R] {
 }
 
 object MessageServiceImpl extends MessageService[MessageServiceEnvironment] {
+
+  private type Task[A] = ZIO[MessageServiceEnvironment, Throwable, A]
+
   def publishMessage(message: SendMessage)
-    : ZIO[MessageServiceEnvironment, Throwable, MessageSent] =
+    : ZIO[MessageServiceEnvironment, Throwable, MessageSent] = {
     ZIO.accessM[MessageServiceEnvironment] { env =>
-      for {
-        _ <- info("Verifying users e-mails.")
-        usersOpt <- env.userClient
+      def validateEmail(message: SendMessage): Task[Unit] =
+        if (message.senderEmail == message.peerEmail)
+          ZIO.fail(new Exception("User can't send message to himself"))
+        else
+          ZIO.unit
+
+      def getUsersPar(
+          message: SendMessage): Task[(Option[User], Option[User])] =
+        env.userClient
           .findByEmail(message.senderEmail) zipPar env.userClient.findByEmail(
           message.peerEmail)
 
-        users <- usersOpt match {
+      def unwrapUsers(users: (Option[User], Option[User])): Task[(User, User)] =
+        users match {
           case (Some(s), Some(p)) =>
             info("Users found") *> ZIO.apply((s, p))
           case _ =>
             info("Couldn't find usres") *> ZIO.fail(
               new Exception("Couldn't find users"))
         }
+
+      for {
+        _ <- info("Verifying users e-mails.")
+        _ <- validateEmail(message)
+        users <- getUsersPar(message) >>= unwrapUsers
         uuid <- env.UUIDEffect.genUUID()
         time <- ZIO.effectTotal(LocalDateTime.now)
-        messageEvent = MessageSent.apply(uuid,
-                                         message.message,
-                                         users._1,
-                                         users._2,
-                                         time)
+        messageEvent = MessageSent(uuid,
+                                   message.message,
+                                   users._1,
+                                   users._2,
+                                   time)
         _ <- env.MessagePub.publishMessage(messageEvent)
         _ <- info("Message published successfully")
       } yield messageEvent
 
     }
+
+  }
 }
