@@ -1,28 +1,24 @@
 package endpoint
 
 import domain.SendMessage
-import effects.{Logger, UUID}
-import effects.external.UserClient
-import effects.publisher.MessagePublisher
+import io.circe.generic.auto._
 import json.JsonSupportEndpoint
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import scalaz.zio.interop.catz._
 import scalaz.zio.{TaskR, ZIO}
-import io.circe.generic.auto._
+import service.Environment.MessageServiceEnvironment
 import service.MessageServiceImpl
 
-final class MessageEndpoint[
-    R <: Logger with UUID with UserClient with MessagePublisher](
-    rootUri: String)
+final class MessageEndpoint[R <: MessageServiceEnvironment](rootUri: String)
     extends JsonSupportEndpoint[R] {
 
   type MessageTask[A] = TaskR[R, A]
 
   val dsl: Http4sDsl[MessageTask] = Http4sDsl[MessageTask]
 
-  import dsl._
   import MessageServiceImpl._
+  import dsl._
 
   def endpoints: HttpRoutes[MessageTask] =
     HttpRoutes.of[MessageTask] {

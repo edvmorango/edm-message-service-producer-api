@@ -1,6 +1,5 @@
 package effect
 
-import com.softwaremill.sttp.asynchttpclient.zio.AsyncHttpClientZioBackend
 import domain.User
 import effects.external.UserClient
 import scalaz.zio.ZIO

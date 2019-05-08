@@ -3,20 +3,8 @@ package service
 import java.time.LocalDateTime
 
 import domain.{MessageSent, SendMessage}
-import effects.{Logger, UUID}
-import effects.external.UserClient
-import effects.publisher.MessagePublisher
 import scalaz.zio.ZIO
-import service.MessageAlias.MessageServiceEnvironment
-
-object MessageAlias {
-
-  type MessageServiceEnvironment = Logger
-    with UUID
-    with UserClient
-    with MessagePublisher
-
-}
+import service.Environment.MessageServiceEnvironment
 
 trait MessageService[R] {
 
