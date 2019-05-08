@@ -17,7 +17,11 @@ import scalaz.zio.{App, TaskR, ZIO}
 
 object Main extends App {
 
-  type AppEnvironment = Clock with UUID with UserClient with MessagePublisher
+  type AppEnvironment = Clock
+    with Logger
+    with UUID
+    with UserClient
+    with MessagePublisher
 
   type AppTask[A] = TaskR[AppEnvironment, A]
 
@@ -52,13 +56,16 @@ object Main extends App {
             .drain
         }
         .provideSome[Environment] { base =>
-          new Clock with UUID with UserClient with MessagePublisher {
+          new Clock with Logger with UUID with UserClient
+          with MessagePublisher {
 
             val clock: Clock.Service[Any] = base.clock
             val scheduler: Scheduler.Service[Any] = base.scheduler
 
             val userClient: UserClient.Service =
               new UserClientSTTP(cfg.userService)
+
+            val log: Logger.Effect = new ConsoleLogger()
 
             def UUIDEffect: UUID.Effect = ZUUID
 

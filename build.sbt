@@ -44,7 +44,6 @@ lazy val fuuidVersion = "0.2.0-M8"
 lazy val scalaTestVersion = "3.0.0"
 lazy val alpakkaVersion = "1.0.0"
 
-
 // Dependencies
 
 libraryDependencies ++=  Seq(

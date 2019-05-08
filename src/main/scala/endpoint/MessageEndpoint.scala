@@ -1,7 +1,7 @@
 package endpoint
 
 import domain.SendMessage
-import effects.UUID
+import effects.{Logger, UUID}
 import effects.external.UserClient
 import effects.publisher.MessagePublisher
 import json.JsonSupportEndpoint
@@ -12,7 +12,8 @@ import scalaz.zio.{TaskR, ZIO}
 import io.circe.generic.auto._
 import service.MessageServiceImpl
 
-final class MessageEndpoint[R <: UUID with UserClient with MessagePublisher](
+final class MessageEndpoint[
+    R <: Logger with UUID with UserClient with MessagePublisher](
     rootUri: String)
     extends JsonSupportEndpoint[R] {
 
