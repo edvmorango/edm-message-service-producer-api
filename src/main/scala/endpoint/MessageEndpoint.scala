@@ -30,8 +30,7 @@ final class MessageEndpoint[R <: UUID with UserClient with MessagePublisher](
         val sendMessage: ZIO[R, Throwable, SendMessage] =
           req.as[SendMessage]
 
-        val xz = sendMessage >>= publishMessage
-        Created(xz)
+        Created(sendMessage >>= publishMessage)
 
     }
 }
