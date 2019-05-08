@@ -49,7 +49,7 @@ object MessageServiceImpl extends MessageService[MessageServiceEnvironment] {
                                          users._2,
                                          time)
         _ <- env.MessagePub.publishMessage(messageEvent)
-        _ <- info("Message published succesfully")
+        _ <- info("Message published successfully")
       } yield messageEvent
 
     }
