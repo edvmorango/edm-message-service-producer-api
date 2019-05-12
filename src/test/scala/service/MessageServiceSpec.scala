@@ -7,9 +7,9 @@ import effect.{MessagePublisherFake, UserClientInMemory}
 import effects.external.UserClient
 import effects.publisher.MessagePublisher
 import effects.{ConsoleLogger, Logger, UUID, ZUUID}
+import environment.Environments.MessageServiceEnvironment
 import org.scalatest.{MustMatchers, WordSpec}
 import scalaz.zio.{DefaultRuntime, ZIO}
-import service.Environment.MessageServiceEnvironment
 class MessageServiceSpec
     extends WordSpec
     with MustMatchers

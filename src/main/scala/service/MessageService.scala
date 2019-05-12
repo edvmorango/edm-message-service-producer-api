@@ -3,8 +3,8 @@ package service
 import java.time.LocalDateTime
 
 import domain.{MessageSent, SendMessage, User}
+import environment.Environments.MessageServiceEnvironment
 import scalaz.zio.ZIO
-import service.Environment.MessageServiceEnvironment
 
 trait MessageService[R] {
 

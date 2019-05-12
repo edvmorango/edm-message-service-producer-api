@@ -1,13 +1,13 @@
 package endpoint
 
 import domain.SendMessage
+import environment.Environments.MessageServiceEnvironment
 import io.circe.generic.auto._
 import json.JsonSupportEndpoint
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import scalaz.zio.interop.catz._
 import scalaz.zio.{TaskR, ZIO}
-import service.Environment.MessageServiceEnvironment
 import service.MessageServiceImpl
 
 final class MessageEndpoint[R <: MessageServiceEnvironment](rootUri: String)

@@ -3,27 +3,16 @@ package app
 import cats.effect.ExitCode
 import cats.syntax.all._
 import config.ConfigLoader
-import effects._
-import effects.external.{UserClient, UserClientSTTP}
-import effects.publisher.{MessagePublisher, MessagePublisherSNS, SNSClient}
 import endpoint.{HealthEndpoint, MessageEndpoint}
+import environment.Environments
+import environment.Environments.{AppEnvironment, AppTask}
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
-import scalaz.zio.clock.Clock
 import scalaz.zio.console._
 import scalaz.zio.interop.catz._
-import scalaz.zio.scheduler.Scheduler
-import scalaz.zio.{App, TaskR, ZIO}
+import scalaz.zio.{App, ZIO}
 
 object Main extends App {
-
-  type AppEnvironment = Clock
-    with Logger
-    with UUID
-    with UserClient
-    with MessagePublisher
-
-  type AppTask[A] = TaskR[AppEnvironment, A]
 
   def createRoutes(basePath: String) = {
     import org.http4s.implicits._
@@ -55,25 +44,8 @@ object Main extends App {
             .compile[AppTask, AppTask, ExitCode]
             .drain
         }
-        .provideSome[Environment] { base =>
-          new Clock with Logger with UUID with UserClient
-          with MessagePublisher {
+        .provideSome[Environment](Environments.createEnvironment(cfg))
 
-            val clock: Clock.Service[Any] = base.clock
-            val scheduler: Scheduler.Service[Any] = base.scheduler
-
-            val userClient: UserClient.Service =
-              new UserClientSTTP(cfg.userService)
-
-            val log: Logger.Effect = new ConsoleLogger()
-
-            def UUIDEffect: UUID.Effect = ZUUID
-
-            def MessagePub: MessagePublisher.Effect =
-              new MessagePublisherSNS(cfg.events.userMessageEvent,
-                                      SNSClient.instantiate(cfg.aws.sns))
-          }
-        }
     } yield server
 
     program.foldM(e => putStrLn(e.getMessage) *> ZIO.succeed(1),
