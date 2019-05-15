@@ -1,6 +1,6 @@
 package effects
 
-import scalaz.zio.{TaskR, ZIO}
+import scalaz.zio.{UIO, ZIO}
 
 trait Logger {
 
@@ -12,9 +12,9 @@ object Logger {
 
   trait Effect {
 
-    def error(message: String): TaskR[Any, Unit]
+    def error(message: String): UIO[Unit]
 
-    def info(message: String): TaskR[Any, Unit]
+    def info(message: String): UIO[Unit]
 
   }
 
@@ -22,9 +22,9 @@ object Logger {
 
 class ConsoleLogger extends Logger.Effect {
 
-  def error(message: String): TaskR[Any, Unit] =
+  def error(message: String): UIO[Unit] =
     ZIO.effectTotal(println(s"ERROR: $message"))
 
-  def info(message: String): TaskR[Any, Unit] =
+  def info(message: String): UIO[Unit] =
     ZIO.effectTotal(println(s"INFO: $message"))
 }

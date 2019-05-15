@@ -3,10 +3,10 @@ import scalaz.zio.ZIO
 
 package object service {
 
-  def info(message: String): ZIO[Logger, Throwable, Unit] =
+  def info(message: String): ZIO[Logger, Nothing, Unit] =
     ZIO.accessM[Logger](_.log.info(message))
 
-  def error(message: String): ZIO[Logger, Throwable, Unit] =
+  def error(message: String): ZIO[Logger, Nothing, Unit] =
     ZIO.accessM[Logger](_.log.info(message))
 
 }

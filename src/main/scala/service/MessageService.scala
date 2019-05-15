@@ -4,54 +4,68 @@ import java.time.LocalDateTime
 
 import domain.{MessageSent, SendMessage, User}
 import environment.Environments.MessageServiceEnvironment
-import scalaz.zio.ZIO
+import failures.{
+  CannotFindUser,
+  CannotPublishMessage,
+  MessageError,
+  UserCannotSendMessageToHimself
+}
+import scalaz.zio.{Fiber, ZIO}
 
 trait MessageService[R] {
 
-  def publishMessage(message: SendMessage): ZIO[R, Throwable, MessageSent]
+  def publishMessage(message: SendMessage): ZIO[R, MessageError, MessageSent]
 
 }
 
 object MessageServiceImpl extends MessageService[MessageServiceEnvironment] {
 
-  private type Task[A] = ZIO[MessageServiceEnvironment, Throwable, A]
+  private type SenderPeer = (User, User)
+
+  case class Dispatch(sender: User, peer: User)
 
   def publishMessage(message: SendMessage)
-    : ZIO[MessageServiceEnvironment, Throwable, MessageSent] = {
+    : ZIO[MessageServiceEnvironment, MessageError, MessageSent] = {
+
+    def validateEmail(message: SendMessage)
+      : ZIO[MessageServiceEnvironment, UserCannotSendMessageToHimself, Unit] =
+      if (message.senderEmail == message.peerEmail)
+        ZIO.fail(UserCannotSendMessageToHimself(message.senderEmail))
+      else
+        ZIO.unit
+
     ZIO.accessM[MessageServiceEnvironment] { env =>
-      def validateEmail(message: SendMessage): Task[Unit] =
-        if (message.senderEmail == message.peerEmail)
-          ZIO.fail(new Exception("User can't send message to himself"))
-        else
-          ZIO.unit
+      Fiber.interrupt
 
-      def getUsersPar(
-          message: SendMessage): Task[(Option[User], Option[User])] =
+      def getUserByEmail(
+          email: String): ZIO[MessageServiceEnvironment, CannotFindUser, User] =
         env.userClient
-          .findByEmail(message.senderEmail) zipPar env.userClient.findByEmail(
-          message.peerEmail)
+          .findByEmail(email)
+          .flatMap {
+            case Some(user) => ZIO.succeedLazy(user)
+            case None       => ZIO.fail(CannotFindUser(email))
+          }
+          .orDie
 
-      def unwrapUsers(users: (Option[User], Option[User])): Task[(User, User)] =
-        users match {
-          case (Some(s), Some(p)) =>
-            info("Users found") *> ZIO.apply((s, p))
-          case _ =>
-            info("Couldn't find usres") *> ZIO.fail(
-              new Exception("Couldn't find users"))
-        }
+      def getUsersPar(message: SendMessage)
+        : ZIO[MessageServiceEnvironment, CannotFindUser, SenderPeer] =
+        getUserByEmail(message.senderEmail) <&> getUserByEmail(
+          message.peerEmail)
 
       for {
         _ <- info("Verifying users e-mails.")
         _ <- validateEmail(message)
-        users <- getUsersPar(message) >>= unwrapUsers
-        uuid <- env.UUIDEffect.genUUID()
+        users <- getUsersPar(message)
+        uuid <- env.UUIDEffect.genUUID().orDie
         time <- ZIO.effectTotal(LocalDateTime.now)
         messageEvent = MessageSent(uuid,
                                    message.message,
                                    users._1,
                                    users._2,
                                    time)
-        _ <- env.MessagePub.publishMessage(messageEvent)
+        _ <- env.MessagePub
+          .publishMessage(messageEvent)
+          .mapError(_ => CannotPublishMessage())
         _ <- info("Message published successfully")
       } yield messageEvent
 
