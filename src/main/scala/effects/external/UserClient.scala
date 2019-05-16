@@ -1,6 +1,6 @@
 package effects.external
 
-import com.softwaremill.sttp.asynchttpclient.zio.AsyncHttpClientZioBackend
+import com.softwaremill.sttp.SttpBackend
 import config.UserServiceConfig
 import domain.User
 import scalaz.zio.{UIO, ZIO}
@@ -21,15 +21,13 @@ object UserClient {
 
 }
 
-class UserClientSTTP(userServiceConfig: UserServiceConfig)
+class UserClientSTTP(userServiceConfig: UserServiceConfig)(
+    implicit val sttpBackend: SttpBackend[ZIO[Any, Throwable, ?], Nothing])
     extends UserClient.Service {
 
   import com.softwaremill.sttp._
   import com.softwaremill.sttp.circe._
   import io.circe.generic.auto._
-
-  implicit val sttpBackend: SttpBackend[ZIO[Any, Throwable, ?], Nothing] =
-    AsyncHttpClientZioBackend()
 
   private def parse[R](
       resp: Response[Either[DeserializationError[io.circe.Error], R]]) = {
@@ -51,10 +49,7 @@ class UserClientSTTP(userServiceConfig: UserServiceConfig)
       result <- parse(response)
     } yield result
 
-    r.either.map {
-      case Right(res) => Some(res)
-      case _          => None
-    }
+    r.either.map(_.toOption)
 
   }
 

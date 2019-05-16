@@ -22,7 +22,7 @@ object MessagePublisher {
 
 }
 
-class MessagePublisherSNS(topic: String, implicit val snsClient: SnsAsyncClient)
+class MessagePublisherSNS(topic: String)(implicit val snsClient: SnsAsyncClient)
     extends MessagePublisher.Effect {
 
   import io.circe.generic.auto._
