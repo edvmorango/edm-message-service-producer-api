@@ -3,14 +3,17 @@
 
 ## Changelog
 
-###__05/16 - Typed failures__
+###__19/05/16 - Typed failures__
 
-__Failures__: At __service__ and __main__ (happens at Domain and DI).
+__Failures__: Must occur during the dependency injection and inside the domain.
 
-__Defects__: Occurs mainly at __effects__ (happens in Total Effects and external interactions).
+Examples at __service__ and __main__.
 
+__Defects__: Used to wrap total effects or external errors (JVM errors and external services).
 
-   
+Examples at __effects__ using __UIO__
+
+__Obs__: The __defects__ approach is subject to changes.
 
 ## More info
 https://github.com/edvmorango/event-driven-messenger
