@@ -2,7 +2,7 @@ package effects
 
 import io.chrisdavenport.fuuid.FUUID
 import scalaz.zio.interop.catz._
-import scalaz.zio.{Task, TaskR}
+import scalaz.zio.{Task, UIO}
 
 trait UUID {
 
@@ -14,7 +14,7 @@ object UUID {
 
   trait Effect {
 
-    def genUUID(): TaskR[Any, String]
+    def genUUID(): UIO[String]
 
   }
 
@@ -22,6 +22,6 @@ object UUID {
 
 object ZUUID extends UUID.Effect {
 
-  def genUUID(): TaskR[Any, String] = FUUID.randomFUUID[Task].map(_.toString())
+  def genUUID(): UIO[String] = FUUID.randomFUUID[Task].map(_.toString()).orDie
 
 }

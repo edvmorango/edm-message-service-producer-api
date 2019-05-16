@@ -10,7 +10,7 @@ import failures.{
   MessageError,
   UserCannotSendMessageToHimself
 }
-import scalaz.zio.{Fiber, ZIO}
+import scalaz.zio.ZIO
 
 trait MessageService[R] {
 
@@ -35,8 +35,6 @@ object MessageServiceImpl extends MessageService[MessageServiceEnvironment] {
         ZIO.unit
 
     ZIO.accessM[MessageServiceEnvironment] { env =>
-      Fiber.interrupt
-
       def getUserByEmail(
           email: String): ZIO[MessageServiceEnvironment, CannotFindUser, User] =
         env.userClient
@@ -56,8 +54,8 @@ object MessageServiceImpl extends MessageService[MessageServiceEnvironment] {
         _ <- info("Verifying users e-mails.")
         _ <- validateEmail(message)
         users <- getUsersPar(message)
-        uuid <- env.UUIDEffect.genUUID().orDie
-        time <- ZIO.effectTotal(LocalDateTime.now)
+        uuid <- env.UUIDEffect.genUUID()
+        time <- ZIO.effectTotal(LocalDateTime.now).orDie
         messageEvent = MessageSent(uuid,
                                    message.message,
                                    users._1,
