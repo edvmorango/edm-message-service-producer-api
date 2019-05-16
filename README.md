@@ -1,10 +1,23 @@
 # edm-message-service-producer-api
 
-## More infos at:
+
+## Changelog
+
+###__05/16 - Typed failures__
+
+__Failures__: At __service__ and __main__ (Domain and DI).
+
+__Defects__: Occurs mainly at __effects__ (Total Effects and external interactions).
+
+
+   
+
+## More info
 https://github.com/edvmorango/event-driven-messenger
 
 ## Stack 
 __(ZIO + Http4s + sttp + sns)__
+
 
 
 ## Example request (will be replaced by __*OpenAPI*__ + __*AsyncApi*__ soon)
