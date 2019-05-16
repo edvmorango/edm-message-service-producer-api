@@ -31,12 +31,13 @@ class UserClientSTTP(userServiceConfig: UserServiceConfig)(
 
   private def parse[R](
       resp: Response[Either[DeserializationError[io.circe.Error], R]]) = {
-    if (resp.is200)
-      ZIO
-        .fromEither(resp.unsafeBody)
-        .mapError(_ => new Exception(s"Invalid response: ${resp.rawErrorBody}"))
-    else
-      ZIO.fail(new Exception(s"Invalid response: ${resp.rawErrorBody}"))
+    if (resp.is200) {
+      resp.unsafeBody match {
+        case Right(r) => ZIO.succeed(r)
+        case _        => ZIO.dieMessage(s"Couldn't parse: ${resp.rawErrorBody}")
+      }
+    } else
+      ZIO.dieMessage(s"Invalid response: $resp")
 
   }
 

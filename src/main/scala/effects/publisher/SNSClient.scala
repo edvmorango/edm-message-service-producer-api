@@ -3,7 +3,7 @@ package effects.publisher
 import java.net.URI
 
 import config.SnsConfig
-import scalaz.zio.{UIO, ZIO}
+import scalaz.zio.{Task, ZIO}
 import software.amazon.awssdk.auth.credentials.{
   AwsBasicCredentials,
   StaticCredentialsProvider
@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.sns.SnsAsyncClient
 
 object SNSClient {
 
-  def instantiate(cfg: SnsConfig): UIO[SnsAsyncClient] = {
+  def instantiate(cfg: SnsConfig): Task[SnsAsyncClient] = {
 
     ZIO
       .succeedLazy(
