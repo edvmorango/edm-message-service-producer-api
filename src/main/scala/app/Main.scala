@@ -3,6 +3,7 @@ package app
 import cats.effect.ExitCode
 import cats.syntax.all._
 import config.ConfigLoader
+import effects.publisher.SNSClient
 import endpoint.{HealthEndpoint, MessageEndpoint}
 import environment.Environments
 import environment.Environments.{AppEnvironment, AppTask}
@@ -33,6 +34,7 @@ object Main extends App {
 
     val program = for {
       cfg <- ZIO.fromEither(ConfigLoader.load)
+      sns <- SNSClient.instantiate(cfg.aws.sns)
       httpApp = createRoutes(cfg.app.context)
       server <- ZIO
         .runtime[AppEnvironment]
@@ -44,7 +46,7 @@ object Main extends App {
             .compile[AppTask, AppTask, ExitCode]
             .drain
         }
-        .provideSome[Environment](Environments.createEnvironment(cfg))
+        .provideSome[Environment](Environments.createEnvironment(cfg, sns))
 
     } yield server
 
