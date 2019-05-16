@@ -5,9 +5,9 @@
 
 ###__05/16 - Typed failures__
 
-__Failures__: At __service__ and __main__ (Domain and DI).
+__Failures__: At __service__ and __main__ (happens at Domain and DI).
 
-__Defects__: Occurs mainly at __effects__ (Total Effects and external interactions).
+__Defects__: Occurs mainly at __effects__ (happens in Total Effects and external interactions).
 
 
    
